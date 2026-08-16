@@ -1,0 +1,34 @@
+{
+  "company_name": "Enterprise Shield Corp",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "RULE_LIABILITY",
+      "category": "Liability",
+      "title": "Liability Cap Limit",
+      "requirement": "Maximum aggregate liability must not exceed $1,000,000 USD. Unlimited liability or caps exceeding $1,000,000 USD are strictly non-compliant.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "RULE_JURISDICTION",
+      "category": "Legal",
+      "title": "Governing Law Jurisdiction",
+      "requirement": "The contract must be governed by the laws of Delaware, California, or New York.",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "RULE_DATA_RETENTION",
+      "category": "Data Privacy",
+      "title": "Data Retention Limit",
+      "requirement": "Post-termination customer data retention must not exceed 30 days.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "RULE_INDEMNIFICATION",
+      "category": "Risk",
+      "title": "Mutual Indemnification",
+      "requirement": "The agreement must include explicit mutual indemnification clauses for intellectual property infringement and data breaches.",
+      "severity": "HIGH"
+    }
+  ]
+}
