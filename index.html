@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Legal Shield - Autonomous Triage Engine</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0f9ff', 600: '#0284c7', 700: '#0369a1', 900: '#0c4a6e' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+
+    <!-- Header / Navigation -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-brand-600 rounded-lg text-white font-bold text-xl">⚖️</div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none">Enterprise Shield</h1>
+                    <span class="text-xs text-slate-400">Powered by Gemini 3.5 Flash & MCP</span>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-xs text-emerald-400 rounded-full flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Async Engine Active
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+        <!-- File Upload Section -->
+        <section class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 shadow-xl">
+            <h2 class="text-lg font-semibold mb-2">Upload Contract for Audit</h2>
+            <p class="text-slate-400 text-sm mb-4">Select a contract file (.txt or .pdf) to trigger autonomous policy triage.</p>
+            
+            <form id="uploadForm" class="flex items-center gap-4">
+                <input type="file" id="fileInput" accept=".txt,.pdf" required
+                       class="block w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-700 file:cursor-pointer cursor-pointer border border-slate-700 rounded-lg bg-slate-900">
+                <button type="submit" id="submitBtn" 
+                        class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-sm transition-all flex items-center gap-2 whitespace-nowrap">
+                    <span>Run Triage</span>
+                </button>
+            </form>
+
+            <!-- Status Indicator -->
+            <div id="statusContainer" class="hidden mt-4 p-4 border rounded-lg bg-slate-900 border-slate-700 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div id="statusSpinner" class="animate-spin text-brand-600">🌀</div>
+                    <div>
+                        <span id="statusText" class="font-medium text-sm">QUEUED</span>
+                        <p id="taskMeta" class="text-xs text-slate-400">Task ID: -</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Results Container (Hidden by default) -->
+        <div id="dashboard" class="hidden space-y-8">
+
+            <!-- Metrics Summary Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl">
+                    <span class="text-slate-400 text-xs font-semibold uppercase">Overall Status</span>
+                    <div id="overallStatusBadge" class="text-xl font-bold mt-1 text-amber-400">REQUIRES REVIEW</div>
+                </div>
+                <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl">
+                    <span class="text-slate-400 text-xs font-semibold uppercase">Contract Risk Score</span>
+                    <div id="riskScore" class="text-xl font-bold mt-1 text-slate-100">78 / 100</div>
+                </div>
+                <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl">
+                    <span class="text-slate-400 text-xs font-semibold uppercase">High Risk Flags</span>
+                    <div id="highRiskCount" class="text-xl font-bold mt-1 text-rose-500">0</div>
+                </div>
+                <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl">
+                    <span class="text-slate-400 text-xs font-semibold uppercase">Redline Report</span>
+                    <div class="mt-1">
+                        <a id="downloadRedlineBtn" href="#" target="_blank" 
+                           class="text-xs text-brand-600 hover:underline font-semibold flex items-center gap-1">
+                            📄 Download Markdown
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Side-by-Side Clause Diff Table -->
+            <section class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-xl">
+                <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-semibold">Clause Evaluation & Redline Matrix</h3>
+                        <p class="text-xs text-slate-400">Comparing original contract terms against proposed compliance redlines.</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/80 border-b border-slate-700 text-xs text-slate-400 uppercase tracking-wider">
+                                <th class="p-4 w-1/12">Clause</th>
+                                <th class="p-4 w-4/12">Original Clause</th>
+                                <th class="p-4 w-4/12">Proposed Redline</th>
+                                <th class="p-4 w-2/12">Audit Findings</th>
+                                <th class="p-4 w-1/12 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="diffTableBody" class="divide-y divide-slate-700/50 text-sm">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusContainer = document.getElementById('statusContainer');
+        const statusText = document.getElementById('statusText');
+        const taskMeta = document.getElementById('taskMeta');
+        const dashboard = document.getElementById('dashboard');
+        const diffTableBody = document.getElementById('diffTableBody');
+
+        let currentTaskId = null;
+        let pollInterval = null;
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!fileInput.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            submitBtn.disabled = true;
+            statusContainer.classList.remove('hidden');
+            statusText.innerText = "UPLOADING...";
+            statusText.className = "font-medium text-sm text-sky-400";
+
+            try {
+                const res = await fetch('/api/tasks/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                currentTaskId = data.task_id;
+                taskMeta.innerText = `Task ID: ${currentTaskId}`;
+                
+                // Start polling status
+                pollInterval = setInterval(checkStatus, 1500);
+            } catch (err) {
+                alert('Upload failed: ' + err.message);
+                submitBtn.disabled = false;
+            }
+        });
+
+        async function checkStatus() {
+            if (!currentTaskId) return;
+
+            try {
+                const res = await fetch(`/api/tasks/${currentTaskId}`);
+                const data = await res.json();
+
+                statusText.innerText = data.status;
+
+                if (data.status === 'PROCESSING') {
+                    statusText.className = "font-medium text-sm text-amber-400";
+                } else if (data.status === 'COMPLETED') {
+                    clearInterval(pollInterval);
+                    statusText.className = "font-medium text-sm text-emerald-400";
+                    document.getElementById('statusSpinner').innerText = "✅";
+                    document.getElementById('statusSpinner').classList.remove('animate-spin');
+                    submitBtn.disabled = false;
+
+                    renderDashboard(data.result, data.redline_file);
+                } else if (data.status === 'FAILED') {
+                    clearInterval(pollInterval);
+                    statusText.className = "font-medium text-sm text-rose-500";
+                    alert('Task Failed: ' + data.error);
+                    submitBtn.disabled = false;
+                }
+            } catch (err) {
+                console.error("Polling error:", err);
+            }
+        }
+
+        function renderDashboard(result, redlineFile) {
+            dashboard.classList.remove('hidden');
+
+            // Populate top metrics
+            document.getElementById('overallStatusBadge').innerText = result.overall_status;
+            document.getElementById('riskScore').innerText = `${result.risk_score} / 100`;
+
+            const highRisks = result.clause_evaluations.filter(c => c.risk_level === 'HIGH').length;
+            document.getElementById('highRiskCount').innerText = highRisks;
+
+            if (redlineFile) {
+                document.getElementById('downloadRedlineBtn').href = `/output/${redlineFile.split('/').pop()}`;
+            }
+
+            // Populate side-by-side table
+            diffTableBody.innerHTML = '';
+
+            result.clause_evaluations.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/30 transition-colors";
+
+                const riskBadges = {
+                    'HIGH': 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+                    'MEDIUM': 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+                    'LOW': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                };
+
+                const badgeClass = riskBadges[item.risk_level] || 'bg-slate-700 text-slate-300';
+
+                tr.innerHTML = `
+                    <td class="p-4 align-top font-semibold text-xs text-slate-300">${item.clause_name}</td>
+                    <td class="p-4 align-top bg-rose-950/10 border-l-2 border-rose-500/40 text-slate-300 font-mono text-xs leading-relaxed">
+                        ${escapeHtml(item.original_text)}
+                    </td>
+                    <td class="p-4 align-top bg-emerald-950/10 border-l-2 border-emerald-500/40 text-slate-200 font-mono text-xs leading-relaxed">
+                        ${escapeHtml(item.proposed_redline || 'No redline required.')}
+                    </td>
+                    <td class="p-4 align-top space-y-2">
+                        <span class="inline-block px-2 py-0.5 border rounded text-[10px] font-bold ${badgeClass}">
+                            ${item.risk_level} RISK
+                        </span>
+                        <p class="text-xs text-slate-400 leading-snug">${escapeHtml(item.reasoning)}</p>
+                    </td>
+                    <td class="p-4 align-top text-center space-y-2">
+                        <button onclick="acceptRedline(${index}, this)" 
+                                class="w-full px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded transition-all">
+                            Accept
+                        </button>
+                        <button onclick="rejectRedline(${index}, this)" 
+                                class="w-full px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded transition-all">
+                            Reject
+                        </button>
+                    </td>
+                `;
+                diffTableBody.appendChild(tr);
+            });
+        }
+
+        function acceptRedline(index, btn) {
+            btn.innerText = "Accepted ✓";
+            btn.className = "w-full px-2.5 py-1 bg-emerald-900 text-emerald-300 text-xs rounded cursor-default";
+            btn.nextElementSibling.style.display = "none";
+        }
+
+        function rejectRedline(index, btn) {
+            btn.innerText = "Rejected ✗";
+            btn.className = "w-full px-2.5 py-1 bg-rose-950 text-rose-400 text-xs rounded cursor-default";
+            btn.previousElementSibling.style.display = "none";
+        }
+
+        function escapeHtml(str) {
+            return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+        }
+    </script>
+</body>
+</html>
